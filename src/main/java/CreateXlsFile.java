@@ -16,23 +16,22 @@ import java.util.Random;
  * Created by dimanandhar on 9/7/17.
  */
 public class CreateXlsFile{
-    String filePath = "/home/dimanandhar/dipesh/test.xlsx";
-    double no_of_rows =1048575;
+    String filePath = "/home/dimanandhar/dipesh/sample1.xlsx";
+    double no_of_rows =1000000;
+    private int no_of_col=1000;
+
     Cell cell;
-    Random random;
     boolean stopped = false;
-    private int no_of_col=16383;
     MyProgressBar myProgressBar;
     JProgressBar progressBar;
     JButton stop;
     Border border;
     public CreateXlsFile(){
-        myProgressBar = new MyProgressBar();
-        progressBar = myProgressBar.progressBar;
+        myProgressBar = new MyProgressBar("Creating Excel File...");
+        progressBar = myProgressBar.getProgressBar();
         stop = myProgressBar.stop;
         PerfomanceTracker.init();
-        random = new Random();
-        String dummyString ="One morning";
+        String dummyString ="i @M DuMmY...";
         try {
             writeExcel(dummyString,filePath);
             PerfomanceTracker.stop();
@@ -43,8 +42,6 @@ public class CreateXlsFile{
     }
     public void writeExcel(String dummyString,String excelFilePath) throws IOException {
         FileOutputStream outputStream = new FileOutputStream(excelFilePath);
-       // BufferedOutputStream bufferedOutputStream=new BufferedOutputStream(outputStream);
-        //byte[] buff = new byte[32 * 1024];
 
         SXSSFWorkbook workbook = new SXSSFWorkbook();
         Sheet shits = null;
@@ -63,6 +60,7 @@ public class CreateXlsFile{
                     row = shits.createRow(i);
                     progressBar.setValue((int) getProgress(i));
                     writeBook(dummyString, row);
+                    myProgressBar.stop.setEnabled(false);
                 }
                 else
                     break;

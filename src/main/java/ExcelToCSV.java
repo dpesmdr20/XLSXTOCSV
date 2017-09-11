@@ -1,58 +1,76 @@
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import com.monitorjbl.xlsx.StreamingReader;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Created by dimanandhar on 9/6/17.
  */
 public class ExcelToCSV {
-    static StringBuffer csv = null;
-    public static void echoAsCSV(Sheet sheet) {
-        csv = new StringBuffer();
-        Row row = null;
-        for (int i = 0; i <= sheet.getLastRowNum(); i++) {
-            row = sheet.getRow(i);
-            for (int j = 0; j < row.getLastCellNum(); j++) {
-                csv.append("\"" + row.getCell(j) + "\",");
-            }
-            csv.append("\n");
-        }
-    }
+     String PATH = "/home/dimanandhar/dipesh/sample1.xlsx";
     public ExcelToCSV(){
-        PerfomanceTracker.init();
-
-        InputStream inp = null;
+        InputStream is = null;
+        Workbook workbook = null;
         try {
-            inp = new FileInputStream("/home/dimanandhar/dipesh/test.xlsx");
-            Workbook wb = WorkbookFactory.create(inp);
+            is = new FileInputStream(new File(PATH));
+            workbook = StreamingReader.builder()
+                    .rowCacheSize(10)    // number of rows to keep in memory (defaults to 10)
+                    .bufferSize(6144)     // buffer size to use when reading InputStream to file (defaults to 1024)
+                    .open(is);            // InputStream or File for XLSX file (required)
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        Sheet sheet = workbook.getSheetAt(0);
+        writeToCSV(sheet);
+    }
 
-            for(int i=0;i<wb.getNumberOfSheets();i++) {
-                System.out.println(wb.getSheetAt(i).getSheetName());
-                echoAsCSV(wb.getSheetAt(i));
+    public void writeToCSV(Sheet sheet) {
+        BufferedWriter bw = null;
+        FileWriter fw = null;
+        try {
+            File file = new File("/home/dimanandhar/dipesh/sample2.csv");
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                file.createNewFile();
             }
+
+            // true = append file
+            fw = new FileWriter(file.getAbsoluteFile(), true);
+            bw = new BufferedWriter(fw);
+            Row x = sheet.getRow(10);
+          System.out.println(x.getCell(1).getStringCellValue());
+        for (Row r : sheet) {
+            PerfomanceTracker.init();
+            for (Cell c : r) {
+                    bw.write("\"" + c.getStringCellValue() + "\",");
+                }
             PerfomanceTracker.stop();
             System.out.println("ExcelToCSV Memory Used: "+PerfomanceTracker.getMemoryUsage()+"  RunTime Period:"+PerfomanceTracker.getRunTimePeriod());
-        } catch (InvalidFormatException ex) {
-            Logger.getLogger(ExcelToCSV.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(ExcelToCSV.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(ExcelToCSV.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+
         } finally {
+
             try {
-                inp.close();
+
+                if (bw != null)
+                    bw.close();
+
+                if (fw != null)
+                    fw.close();
+
             } catch (IOException ex) {
-                Logger.getLogger(ExcelToCSV.class.getName()).log(Level.SEVERE, null, ex);
+
+                ex.printStackTrace();
+
             }
         }
     }
-
 
 }

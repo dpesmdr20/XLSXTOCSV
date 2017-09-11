@@ -1,19 +1,17 @@
 import javax.swing.*;
-import javax.swing.border.Border;
 import java.awt.*;
 
 /**
  * Created by dimanandhar on 9/8/17.
  */
 public class MyProgressBar extends JFrame {
-    JProgressBar progressBar;
+    private JProgressBar progressBar;
     JButton stop;
-
-    public MyProgressBar(){
-        initFrame();
+    public MyProgressBar(String title){
+        initFrame(title);
     }
-    public void initFrame(){
-        setTitle("Creating Excel File...");
+    public void initFrame(String title){
+        setTitle(title);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         progressBar = new JProgressBar();
         progressBar.setStringPainted(true);
@@ -24,5 +22,8 @@ public class MyProgressBar extends JFrame {
 
         setSize(300, 100);
         setVisible(true);
+    }
+    public JProgressBar getProgressBar() {
+        return progressBar;
     }
 }
